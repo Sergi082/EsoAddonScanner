@@ -64,8 +64,8 @@ public class App {
         System.out.println(list.size() + " аддонов присутствуют в базе и готовы к проверке обновлений");
         System.out.println("Запускаю поиск обновлений...");
 
-        //list.parallelStream().forEach(App::updater);
-        //extractor();
+        //list.forEach(App::updater); // последовательное скачивание если 1-2 не работает для отладки
+
 
         // 1. Создаём массив CompletableFuture для каждой задачи
         CompletableFuture<?>[] futures = list.parallelStream()
@@ -178,6 +178,11 @@ public class App {
                 String href = doc.select("#download #size ~ a").attr("href");
                 //формируем урл для скачивания
                 String url = "https://www.esoui.com".concat(href);
+                // если есть косяк в url
+                if (url.contains("javascript")) {
+                    throw new IOException(addon+ " " + url);
+                }
+
                 // скачиваем файл
                 downloader(addon, url);
                 status = "Update download!------------------->";
